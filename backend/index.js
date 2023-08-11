@@ -11,6 +11,22 @@ function setTrainData(data){
     trainData= data;
 }
 
+function sortTrains1(filteredTrains){
+
+    // SOrt data based on criteria given
+    const sortedTrains = filteredTrains.sort((a, b) => {
+      if (a.price.sleeper !== b.price.sleeper) {
+        return a.price.sleeper - b.price.sleeper; // Descending order of sleeper price
+      } else if (a.seatsAvailable.sleeper !== b.seatsAvailable.sleeper) {
+        return b.seatsAvailable.sleeper - a.seatsAvailable.sleeper; // Descending order of sleeper seats
+      } else {
+        return a.departureTime.time - b.departureTime.time; // Ascending order of departure time
+      }
+    });
+      
+      return sortedTrains;
+  }
+
 function filterTrain30minRange(allTrainData){
     const now = new Date();
     const year = now.getFullYear();
@@ -35,16 +51,17 @@ app.get('/trains',async (req, res) => {
     try {
       const response = await axios.get('http://20.244.56.144/train/trains',{
         headers: {
-          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTE3MzkyOTAsImNvbXBhbnlOYW1lIjoiVHJhaW4gQ2VudHJhbCIsImNsaWVudElEIjoiOWM5NzFmMzQtZGRhNC00ODBmLTg1YjktNmUyNTliZTliOWRmIiwib3duZXJOYW1lIjoiIiwib3duZXJFbWFpbCI6IiIsInJvbGxObyI6IjIwMTIwNjMifQ.07HxmUXkWpo9O9-mHNSRuC7XvAe7Fk4hoK8M9ydW-Rw`,
+          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTE3Mzk1ODAsImNvbXBhbnlOYW1lIjoiVHJhaW4gQ2VudHJhbCIsImNsaWVudElEIjoiOWM5NzFmMzQtZGRhNC00ODBmLTg1YjktNmUyNTliZTliOWRmIiwib3duZXJOYW1lIjoiIiwib3duZXJFbWFpbCI6IiIsInJvbGxObyI6IjIwMTIwNjMifQ.npt12kNJIccDwr4EdasDyuNrbdC8X15qef2LYlpfZmk`,
         }
     });
   
     const allTrainData = response.data;
     
     const filteredTrains = filterTrain30minRange(allTrainData);
+    const sortTrains = sortTrains1(filteredTrains);
 
     //console.log(allTrainData);
-    res.json(filteredTrains);
+    res.json(sortTrains);
       
 
     } catch (error) {
