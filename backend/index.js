@@ -11,18 +11,40 @@ function setTrainData(data){
     trainData= data;
 }
 
+function filterTrain30minRange(allTrainData){
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    const date = now.getDate();
+
+  
+    // Filter out trains departing in the next 30 minutes
+    const filteredTrains = allTrainData.filter(train => {
+        const departureTime = new Date(year,month,date,train.departureTime.Hours,train.departureTime.Minutes,train.departureTime.Seconds);
+        train.departureTime['time']= departureTime;
+        const timeDifference = departureTime - now;
+        
+        return timeDifference > 30 * 60 * 1000; 
+    });
+  
+  return filteredTrains;
+}
+
 app.get('/trains',async (req, res) => {
 
     try {
       const response = await axios.get('http://20.244.56.144/train/trains',{
         headers: {
-          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTE3MzQyMjYsImNvbXBhbnlOYW1lIjoiVHJhaW4gQ2VudHJhbCIsImNsaWVudElEIjoiOWM5NzFmMzQtZGRhNC00ODBmLTg1YjktNmUyNTliZTliOWRmIiwib3duZXJOYW1lIjoiIiwib3duZXJFbWFpbCI6IiIsInJvbGxObyI6IjIwMTIwNjMifQ.VQRY8uvJ3--MLZf9BMGiP6LV6TWS8TojgfiyoZKGz_c`,
+          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTE3MzkyOTAsImNvbXBhbnlOYW1lIjoiVHJhaW4gQ2VudHJhbCIsImNsaWVudElEIjoiOWM5NzFmMzQtZGRhNC00ODBmLTg1YjktNmUyNTliZTliOWRmIiwib3duZXJOYW1lIjoiIiwib3duZXJFbWFpbCI6IiIsInJvbGxObyI6IjIwMTIwNjMifQ.07HxmUXkWpo9O9-mHNSRuC7XvAe7Fk4hoK8M9ydW-Rw`,
         }
     });
   
-    const processedData = response.data;
-  
-    res.json(processedData);
+    const allTrainData = response.data;
+    
+    const filteredTrains = filterTrain30minRange(allTrainData);
+
+    //console.log(allTrainData);
+    res.json(filteredTrains);
       
 
     } catch (error) {
